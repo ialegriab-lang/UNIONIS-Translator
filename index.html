@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050b12">
+  <title>UNIONIS | EXINE</title>
+
+  <link rel="stylesheet" href="./css/style.css">
+  <script src="./js/script.js" defer></script>
+</head>
+
+<body>
+
+  <!-- PANTALLA DE BIENVENIDA -->
+  <section id="Bienvenido" class="screen">
+    <nav class="welcome-nav">
+      <div class="nav-container">
+        <span class="nav-project"><i class="nav-light"></i>PROYECTO UNIONIS</span>
+        <span>GOBIERNO DE EXINE // DATOS CLASIFICADOS</span>
+      </div>
+    </nav>
+
+    <div class="center-block">
+      <p class="welcome-eyebrow">SISTEMA DE TRADUCCIÓN INTERESPECIE</p>
+      <h1 class="welcome-title">UNIONIS</h1>
+      <p class="welcome-subtitle">Bienvenido, Dr. Marquens</p>
+      <p class="welcome-instruction">Presiona el botón para ejecutar el sistema.</p>
+
+      <button id="enter-btn" class="action-btn" type="button">
+        EJECUTAR <span>↗</span>
+      </button>
+
+      <p class="welcome-foot">EXINE // PROTOCOLO DE COMUNICACIÓN</p>
+    </div>
+
+    <div class="welcome-corner corner-left">EXINE SYSTEM / 01</div>
+    <div class="welcome-corner corner-right">ACCESS AUTHORIZED</div>
+  </section>
+
+
+  <!-- PANTALLA DEL TRADUCTOR -->
+  <section id="Traductor" class="screen hide">
+
+    <div class="app-shell">
+
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">E</div>
+          <div>
+            EXINE
+            <small> SISTEMA DE COMUNICACIÓN INTERESPECIE </small>
+          </div>
+        </div>
+
+        <div class="top-status">
+          <span>
+            <i class="status-dot" id="statusDot"></i>
+            <span id="systemStatus">SISTEMA EN ESPERA</span>
+          </span>
+          <span class="hide-mobile">UNIONIS / IN MARE NATARE</span>
+        </div>
+      </header>
+
+
+      <section class="intro">
+        <div class="eyebrow">ARCHIVO 01 — COMUNICACIÓN ACUÁTICA</div>
+
+        <h1>TRADUCTOR <span>INTERESPECIE</span></h1>
+
+        <p>
+          Una interfaz experimental para escuchar las señales de los marinos
+          y explorar lo que podrían decirnos. Sintoniza una frecuencia,
+          escucha su patrón y solicita una traducción.
+        </p>
+      </section>
+
+
+      <main class="console-frame">
+
+        <div class="console-head">
+          <div><strong>EXINE //</strong> CONSOLA DE TRADUCCIÓN</div>
+
+          <div class="head-right">
+            <span>CANAL: MARINO</span>
+            <span id="connectionLabel">OFFLINE</span>
+          </div>
+        </div>
+
+
+        <div class="dashboard">
+
+          <!-- COLUMNA IZQUIERDA -->
+          <aside class="side-panel left-panel">
+
+            <h2 class="section-label">
+              01 / ARCHIVO ACÚSTICO <span>▤</span>
+            </h2>
+
+            <div class="signal-list" id="signalList"></div>
+
+            <button class="random-btn" id="randomBtn" type="button">
+              ↻ GENERAR SEÑAL ALEATORIA
+            </button>
+
+            <button class="error-pick" id="errorPick" type="button">
+              ! SIMULAR SEÑAL DESCONOCIDA 404
+            </button>
+
+          </aside>
+
+
+          <!-- COLUMNA CENTRAL: ONDAS Y AUDIO -->
+          <section class="main-panel">
+
+            <div class="wave-topline">
+              <span>02 / REPRESENTACIÓN DE SONIDO</span>
+              <span class="frequency" id="frequencyLabel">FREQ. --</span>
+            </div>
+
+            <div class="wave-box">
+              <canvas
+                id="waveCanvas"
+                aria-label="Visualización animada de la onda sonora">
+              </canvas>
+            </div>
+
+            <div class="wave-caption">
+              <span id="waveCaption">ESPERANDO ENTRADA ACÚSTICA</span>
+              <span>TIME DOMAIN / LIVE</span>
+            </div>
+
+            <div class="playback-controls">
+              <button class="primary-btn" id="playBtn" type="button">
+                ▶ REPRODUCIR
+              </button>
+
+              <button class="ghost-btn" id="pauseBtn" type="button" disabled>
+                Ⅱ PAUSAR
+              </button>
+
+              <span class="playback-state" id="playbackState">
+                ● EN PAUSA
+              </span>
+            </div>
+
+            <div class="meta-grid">
+
+              <div class="meta-cell">
+                <small>SEÑAL ACTUAL</small>
+                <strong id="metaSignal">SEÑAL 001</strong>
+              </div>
+
+              <div class="meta-cell">
+                <small>ORIGEN</small>
+                <strong id="metaOrigin">MARINO</strong>
+              </div>
+
+              <div class="meta-cell">
+                <small>ESTADO</small>
+                <strong id="metaState">EN ESPERA</strong>
+              </div>
+
+            </div>
+          </section>
+
+
+          <!-- COLUMNA DERECHA: TRADUCCIÓN -->
+          <aside class="side-panel right-panel">
+
+            <h2 class="section-label">
+              03 / CONSOLA DE TRADUCCIÓN <span>⌁</span>
+            </h2>
+
+            <div class="translation-panel">
+
+              <div class="translation-screen" id="translationScreen">
+
+                <div class="translation-status">
+                  <span id="translationStatus">SISTEMA LISTO</span>
+                  <span class="rec">EXINE_TXT</span>
+                </div>
+
+                <div class="translation-kicker" id="translationKicker">
+                  ESPERANDO SOLICITUD...
+                </div>
+
+                <p class="translation-text idle" id="translationText">
+                  Selecciona una señal acústica y solicita su traducción.
+                </p>
+
+                <p class="translation-note">
+                  EQUIPO PROYECTO UNIONIS 
+                </p>
+
+              </div>
+
+              <div>
+                <button class="primary-btn translate-btn" id="translateBtn" type="button">
+                  ⌁ SOLICITAR TRADUCCIÓN
+                </button>
+
+                <button class="ghost-btn retry-btn" id="retryBtn" type="button">
+                  ↻ REINTENTAR ANÁLISIS
+                </button>
+              </div>
+
+            </div>
+          </aside>
+
+        </div>
+      </main>
+
+
+      <footer class="footer">
+        <span>PROTOTIPO SONORO · AUDIO SINTÉTICO / TRADUCCIÓN FICTICIA</span>
+        <span>DISEÑO DE SISTEMA: ISABELLA ALEGRE BUENDÍA · UNIONIS</span>
+      </footer>
+
+      <div class="return-row">
+        <button id="back-btn" class="action-btn return-btn" type="button">
+          ← VOLVER A INICIO
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+</body>
+</html>
