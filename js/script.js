@@ -207,7 +207,6 @@ let audioSource = null;
 
 let isPlaying = false;
 let audioOffset = 0;
-let playbackStartedAt = 0;
 
 let animationFrame = 0;
 let typeTimer = null;
@@ -216,7 +215,7 @@ let analysisToken = 0;
 
 let waveData = null;
 
-const audioBuffers = new Map();
+const audioPlayers = new Map();
 
 const soundFiles = {
   "001": "./sound/Sound4.mp3",
@@ -260,8 +259,9 @@ function renderSignals() {
         <span class="signal-desc">${signal.description}</span>
       `;
 
-      button.addEventListener("click", () => {
+      button.addEventListener("click", async () => {
         selectSignal(signal.id);
+        await playSignal();
       });
 
       signalList.appendChild(button);
@@ -379,10 +379,10 @@ function initialiseAudio() {
 
 // Cargar sonidos
 
-async function loadSignalBuffer(signal) {
+async function loadSignalAudio(signal) {
 
-  if (audioBuffers.has(signal.id)) {
-    return audioBuffers.get(signal.id);
+  if (audioPlayers.has(signal.id)) {
+    return audioPlayers.get(signal.id);
   }
 
   const soundFile = soundFiles[signal.id];
@@ -391,20 +391,23 @@ async function loadSignalBuffer(signal) {
     throw new Error("No sound file configured for signal " + signal.id);
   }
 
-  const response = await fetch(soundFile);
+  const audio = new Audio(soundFile);
+  audio.preload = "auto";
+  audio.loop = true;
 
-  if (!response.ok) {
-    throw new Error(
-      "Could not load " + soundFile + " (" + response.status + ")"
-    );
+  audio.addEventListener("error", () => {
+    console.error("Could not load " + soundFile);
+  }, { once: true });
+
+  try {
+    audioContext.createMediaElementSource(audio).connect(analyser);
+  } catch (error) {
+    console.warn("Waveform analyser unavailable:", error);
   }
 
-  const audioData = await response.arrayBuffer();
-  const buffer = await audioContext.decodeAudioData(audioData);
+  audioPlayers.set(signal.id, audio);
 
-  audioBuffers.set(signal.id, buffer);
-
-  return buffer;
+  return audio;
 
 }
 
@@ -416,31 +419,35 @@ async function playSignal() {
 
   if (!audioContext) return;
 
-  await audioContext.resume();
+  try {
+    await audioContext.resume();
+  } catch (error) {
+    console.error("Unable to start the audio context:", error);
+  }
 
   if (isPlaying) return;
 
-  let buffer;
+  let audio;
 
   try {
-    buffer = await loadSignalBuffer(selectedSignal);
+    audio = await loadSignalAudio(selectedSignal);
   } catch (error) {
     console.error("Unable to load signal audio:", error);
     $("playbackState").textContent = "AUDIO NO DISPONIBLE";
     return;
   }
 
-  audioSource = audioContext.createBufferSource();
+  audioSource = audio;
+  audioSource.currentTime = audioOffset;
 
-  audioSource.buffer = buffer;
-
-  audioSource.loop = true;
-
-  audioSource.connect(analyser);
-
-  audioSource.start(0, audioOffset % buffer.duration);
-
-  playbackStartedAt = audioContext.currentTime;
+  try {
+    await audioSource.play();
+  } catch (error) {
+    console.error("Unable to play signal audio:", error);
+    audioSource = null;
+    $("playbackState").textContent = "AUDIO NO DISPONIBLE";
+    return;
+  }
 
   isPlaying = true;
 
@@ -454,18 +461,8 @@ function pauseSignal() {
 
   if (!isPlaying || !audioSource) return;
 
-  const duration = audioSource.buffer.duration;
-
-  audioOffset =
-    (audioOffset + audioContext.currentTime - playbackStartedAt) %
-    duration;
-
-  try {
-    audioSource.stop();
-  } catch (error) {}
-
-  audioSource.disconnect();
-
+  audioOffset = audioSource.currentTime;
+  audioSource.pause();
   audioSource = null;
 
   isPlaying = false;
@@ -479,13 +476,7 @@ function pauseSignal() {
 function stopAudio(resetOffset) {
 
   if (audioSource) {
-
-    try {
-      audioSource.stop();
-    } catch (error) {}
-
-    audioSource.disconnect();
-
+    audioSource.pause();
     audioSource = null;
 
   }
@@ -494,6 +485,10 @@ function stopAudio(resetOffset) {
 
   if (resetOffset) {
     audioOffset = 0;
+    const audio = audioPlayers.get(selectedSignal.id);
+    if (audio) {
+      audio.currentTime = 0;
+    }
   }
 
   updatePlaybackUI();
@@ -834,6 +829,7 @@ $("randomBtn").addEventListener("click", generateRandomSignal);
 
 $("errorPick").addEventListener("click", () => {
   selectSignal("404");
+  playSignal();
 });
 
 $("playBtn").addEventListener("click", playSignal);
